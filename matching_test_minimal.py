@@ -48,7 +48,7 @@ def configure_matching_test():
 					 starting_balances=[Money(10000, USDT)],
 					 fee_model=MakerTakerFeeModel(),
 					 fill_model=None,
-					 book_type=BookType.L1_MBP,
+					 book_type=BookType.L2_MBP,
 					 bar_execution=False,
 					 trade_execution=True,
 					 liquidity_consumption=True,
