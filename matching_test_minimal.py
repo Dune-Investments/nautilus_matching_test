@@ -22,7 +22,7 @@ def configure_matching_test():
 	instruments_types = [(instrument_name, QuoteTick)]
 
 	config = OrderPlacementTestStrategy_config(instrument_id=InstrumentId.from_str(instrument_name),
-											   subscription_type="quote",
+											   subscription_type="deltas",
 											   interval_ms=100,
 											   snapshot_depth=1,
 											   place_timestamp_ns=1763732580854000000,
@@ -50,9 +50,9 @@ def configure_matching_test():
 					 fill_model=None,
 					 book_type=BookType.L1_MBP,
 					 bar_execution=False,
-					 trade_execution=False,
-					 liquidity_consumption=False,
-					 queue_position=False)
+					 trade_execution=True,
+					 liquidity_consumption=True,
+					 queue_position=True)
 
 	catalog = ParquetDataCatalog(path='./catalog')
 
