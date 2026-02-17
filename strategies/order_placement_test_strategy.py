@@ -66,7 +66,7 @@ class OrderPlacementTestStrategy(Strategy):
 		# if self.step_ns > 0 and (order_book_delta.ts_event - self.last_update_ts) < self.step_ns:
 		# 	return
 		book = self.cache.order_book(deltas.instrument_id)
-
+		self.log.info(f'Received  {len(deltas.deltas)} deltas at {deltas.ts_init=} {deltas.ts_event=}.')
 		for delta in deltas.deltas:
 			row = {
 					'UPDATE_TYPE'       : 'Delta',
