@@ -47,7 +47,7 @@ class OrderPlacementTestStrategy(Strategy):
 		if self.init_config.subscription_type == 'snapshot':
 			self.subscribe_order_book_at_interval(instrument_id=self.instr.id,
 												  book_type=BookType.L2_MBP,
-												  depth=5,
+												  depth=1,
 												  interval_ms=self.init_config.interval_ms,
 												  params=None)
 
@@ -60,6 +60,10 @@ class OrderPlacementTestStrategy(Strategy):
 			self.subscribe_order_book_deltas(self.instr.id, BookType.L2_MBP)
 
 		self.subscribe_trade_ticks(self.instr.id)
+
+	def on_stop(self):
+		df = pd.DataFrame(self.rows)
+		df.to_csv(f'updates_{self.trader_id.value}.csv', index=False)
 
 	def on_order_book_deltas(self, deltas: OrderBookDeltas) -> None:
 		"""Process incoming L2 delta, honoring rate limits and invoking core logic."""
@@ -172,9 +176,9 @@ class OrderPlacementTestStrategy(Strategy):
 			self.log.info(f'Order {event.client_order_id} {event} has been filled. Will exit shortly.')
 			self.filled_ts = event.ts_event
 
-	def on_order_book(self, order_book: OrderBook) -> None:
+	def on_order_book(self, book: OrderBook) -> None:
 
-		self.run_core(order_book, order_book)
+		self.run_core(book, book)
 
 	def on_order_book_depth(self, depth: OrderBookDepth10):
 		pass
@@ -184,8 +188,6 @@ class OrderPlacementTestStrategy(Strategy):
 		t = data.ts_event
 
 		if (self.filled_ts is not None and abs(self.filled_ts - t) >= 5 * 1000 * 1000 * 1000):
-			df = pd.DataFrame(self.rows)
-			df.to_csv(f'updates_{self.trader_id.value}.csv', index=False)
 			self.stop()
 			return
 
@@ -250,8 +252,6 @@ class OrderPlacementTestStrategy(Strategy):
 		t = tick.ts_event
 
 		if (self.filled_ts is not None and abs(self.filled_ts - t) >= 5 * 1000 * 1000 * 1000):
-			df = pd.DataFrame(self.rows)
-			df.to_csv(f'updates_{self.trader_id.value}.csv', index=False)
 			self.stop()
 			return
 

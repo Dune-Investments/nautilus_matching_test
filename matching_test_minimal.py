@@ -4,6 +4,7 @@ from nautilus_trader.backtest.engine import BacktestEngine
 from nautilus_trader.backtest.models.fee import MakerTakerFeeModel
 from nautilus_trader.common.config import LoggingConfig
 from nautilus_trader.core.datetime import dt_to_unix_nanos
+from nautilus_trader.data.config import DataEngineConfig
 from nautilus_trader.model import InstrumentId, Money, OrderBookDelta, TradeTick, QuoteTick, Venue
 from nautilus_trader.model.currencies import USDT
 from nautilus_trader.model.enums import AccountType, OmsType
@@ -18,11 +19,12 @@ def configure_matching_test():
 	end_date = "2025-11-22 00:00:00"
 	instrument_name = '42USDT-PERP.BINANCE'
 
-	# instruments_types = [(instrument_name, QuoteTick), (instrument_name, TradeTick)]
-	instruments_types = [(instrument_name, QuoteTick)]
+	instruments_types = [(instrument_name, QuoteTick), (instrument_name, TradeTick)]
+	# instruments_types = [(instrument_name, OrderBookDelta), (instrument_name, TradeTick)]
+	# instruments_types = [(instrument_name, QuoteTick)]
 
 	config = OrderPlacementTestStrategy_config(instrument_id=InstrumentId.from_str(instrument_name),
-											   subscription_type="deltas",
+											   subscription_type="quote",
 											   interval_ms=100,
 											   snapshot_depth=1,
 											   place_timestamp_ns=1763732580854000000,
@@ -38,7 +40,10 @@ def configure_matching_test():
 							log_file_max_backup_count=1000,
 							log_colors=False)
 
-	engine = BacktestEngine(config=BacktestEngineConfig(trader_id='matching-test', logging=logging))
+	engine = BacktestEngine(config=BacktestEngineConfig(trader_id='matching-test',
+														logging=logging,
+														data_engine=DataEngineConfig(buffer_deltas=True))
+							)
 
 	engine.add_strategy(strategy)
 
@@ -48,8 +53,8 @@ def configure_matching_test():
 					 starting_balances=[Money(10000, USDT)],
 					 fee_model=MakerTakerFeeModel(),
 					 fill_model=None,
-					 book_type=BookType.L2_MBP,
-					 bar_execution=False,
+					 book_type=BookType.L1_MBP,
+					 bar_execution=True,
 					 trade_execution=True,
 					 liquidity_consumption=True,
 					 queue_position=True)
